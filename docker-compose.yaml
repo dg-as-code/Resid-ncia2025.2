@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laravel_app
+    container_name: laravel_app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./src:/var/www/app
+    depends_on:
+      - db
+      - llm
+    networks:
+      - laravel_network
+
+  db:
+    image: mysql:5.7
+    platform: linux/x86_64
+    container_name: db_agenda
+    restart: always
+    environment:
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - laravel_network
+
+  llm:
+    build:
+      context: ./src/llm
+      dockerfile: Dockerfile
+    image: llm_service
+    container_name: llm_service
+    restart: unless-stopped
+    volumes:
+      - ./src/llm:/app
+    command: ["python", "main.py"]
+    networks:
+      - laravel_network
+
+volumes:
+  db_data:
+
+networks:
+  laravel_network:
+    driver: bridge
