@@ -1,0 +1,13 @@
+# Dependências Python para o serviço LLM
+# Usado pelo Agente Key para geração de conteúdo
+
+# Dependências básicas
+python-dotenv>=1.0.0
+
+# APIs externas (opcional - descomente se for usar)
+# openai>=1.0.0
+# anthropic>=0.7.0
+
+# HTTP requests (se necessário para scripts Python)
+# requests>=2.25.1
+

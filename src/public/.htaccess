@@ -1,0 +1,34 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    # Permite que o Laravel processe cabeçalhos de autorização
+    # Necessário para autenticação JWT e outras formas de autenticação
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    # Remove barras finais de URLs que não são diretórios
+    # Melhora a consistência das URLs da API
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    # Todas as requisições são direcionadas para index.php
+    # Isso inclui todas as rotas da API dos agentes de IA
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Segurança adicional para APIs
+# Protege contra acesso direto a arquivos sensíveis
+<FilesMatch "\.(env|log|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
