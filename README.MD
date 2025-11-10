@@ -109,6 +109,36 @@ curl http://localhost/api/stock-symbols
 
 # Listar artigos gerados
 curl http://localhost/api/articles
+## Como rodar
+
+### 1. Levantar o ambiente (na raiz do projeto)
+
+```bash
+docker-compose up --build -d
+```
+
+### 2. Acessando a aplicação
+
+```bash
+http://localhost
+```
+
+### 3. Acessando o container da aplicação
+
+```bash
+docker exec -it agenda bash
+```
+
+### 4. Instalando as dependências
+
+```bash
+composer install
+```
+
+### 5. Acessando o container do Banco de Dados
+
+```bash
+docker exec -it db_agenda bash
 ```
 
 ---
