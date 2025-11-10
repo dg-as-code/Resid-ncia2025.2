@@ -1,0 +1,22 @@
+# robots.txt para Sistema de Agentes de IA
+# Configuração para crawlers de mecanismos de busca
+
+# Permitir acesso a todos os bots por padrão
+User-agent: *
+Allow: /
+
+# Bloquear acesso a endpoints de API e áreas administrativas
+# Protege endpoints sensíveis dos agentes de IA
+Disallow: /api/
+Disallow: /admin/
+Disallow: /storage/
+
+# Bloquear arquivos e diretórios sensíveis
+Disallow: /.env
+Disallow: /vendor/
+Disallow: /node_modules/
+Disallow: /storage/logs/
+Disallow: /bootstrap/cache/
+
+# Sitemap (se disponível)
+# Sitemap: https://example.com/sitemap.xml
