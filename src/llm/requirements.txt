@@ -4,10 +4,13 @@
 # Dependências básicas
 python-dotenv>=1.0.0
 
-# APIs externas (opcional - descomente se for usar)
-# openai>=1.0.0
-# anthropic>=0.7.0
+# Google Gemini API
+google-generativeai>=0.3.0
 
 # HTTP requests (se necessário para scripts Python)
-# requests>=2.25.1
+requests>=2.25.1
+
+# Yahoo Finance (para AgentJulia - opcional)
+yfinance>=0.2.0
+pandas>=1.5.0
 

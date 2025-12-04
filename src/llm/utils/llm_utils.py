@@ -20,7 +20,7 @@ def format_input_data(raw_data: Dict[str, Any]) -> Dict[str, Any]:
         Dicionário formatado e validado
     """
     formatted = {
-        'symbol': raw_data.get('symbol', ''),
+        'company_name': raw_data.get('company_name', raw_data.get('companny_name', '')),  # Suporta ambos para compatibilidade
         'financial': {},
         'sentiment': {},
     }
@@ -29,6 +29,7 @@ def format_input_data(raw_data: Dict[str, Any]) -> Dict[str, Any]:
     financial = raw_data.get('financial', {})
     if financial:
         formatted['financial'] = {
+            'symbol': financial.get('action_symbol'),
             'price': financial.get('price'),
             'previous_close': financial.get('previous_close'),
             'change': financial.get('change'),
@@ -61,7 +62,7 @@ def generate_article_content(formatted_data: Dict[str, Any]) -> Dict[str, str]:
     Gera conteúdo de artigo baseado em dados formatados.
     
     Por enquanto, usa template simples. Em produção, substituir por
-    chamada real para LLM (OpenAI, Anthropic, modelo local, etc.).
+    chamada real para LLM (Gemini).
     
     Args:
         formatted_data: Dicionário com dados formatados
@@ -69,6 +70,7 @@ def generate_article_content(formatted_data: Dict[str, Any]) -> Dict[str, str]:
     Returns:
         Dicionário com 'title' e 'content'
     """
+    company_name = formatted_data.get('company_name', formatted_data.get('companny_name', 'N/A'))
     symbol = formatted_data.get('symbol', 'N/A')
     financial = formatted_data.get('financial', {})
     sentiment = formatted_data.get('sentiment', {})
@@ -79,13 +81,13 @@ def generate_article_content(formatted_data: Dict[str, Any]) -> Dict[str, str]:
     change_val = float(change) if change is not None else 0
     trend = 'alta' if change_val > 0 else ('queda' if change_val < 0 else 'estabilidade')
     
-    title = f"Análise {symbol}: Mercado em {trend}"
+    title = f"Análise {company_name}: Mercado em {trend}"
     if price is not None:
         price_str = _format_currency(price) if isinstance(price, (int, float)) else str(price)
         title += f" - {price_str}"
     
     # Gera conteúdo
-    content = f"## Análise de {symbol}\n\n"
+    content = f"## Análise de {company_name}\n\n"
     
     # Seção de dados financeiros
     if financial:
@@ -94,7 +96,7 @@ def generate_article_content(formatted_data: Dict[str, Any]) -> Dict[str, str]:
         if financial.get('price'):
             price = financial['price']
             price_str = _format_currency(price) if isinstance(price, (int, float)) else str(price)
-            content += f"A ação {symbol} está sendo negociada a {price_str}.\n\n"
+            content += f"As ações da {company_name} estão sendo negociadas a {price_str}.\n\n"
         
         if financial.get('change') and financial.get('change') != 0:
             change_val = float(financial.get('change', 0))

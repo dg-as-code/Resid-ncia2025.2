@@ -41,7 +41,7 @@ class AgentPedroAnalyze extends Command
      */
     public function handle()
     {
-        $this->info('🔍 Agente Pedro iniciando análise de sentimento e mídia...');
+        $this->info(' Agente Pedro iniciando análise de sentimento e mídia...');
 
         try {
             $symbol = $this->option('symbol');
@@ -54,11 +54,11 @@ class AgentPedroAnalyze extends Command
             $symbolsToAnalyze = $this->getSymbolsToAnalyze($symbol, $all);
 
             if (empty($symbolsToAnalyze)) {
-                $this->warn('⚠️ Nenhuma ação encontrada para análise.');
+                $this->warn(' Nenhuma ação encontrada para análise.');
                 return Command::SUCCESS;
             }
 
-            $this->info("📰 Analisando sentimento de " . count($symbolsToAnalyze) . " ação(ões)...");
+            $this->info(" Analisando sentimento de " . count($symbolsToAnalyze) . " ação(ões)...");
 
             $bar = $this->output->createProgressBar(count($symbolsToAnalyze));
             $bar->start();
@@ -72,28 +72,115 @@ class AgentPedroAnalyze extends Command
                         20
                     );
 
-                    // Analisa sentimento das notícias
-                    $analysis = $service->analyzeSentiment($articles);
+                    // Analisa sentimento das notícias com LLM (análise enriquecida)
+                    // Busca dados financeiros recentes para contexto (otimizado: eager loading)
+                    $latestFinancial = $stockSymbol->latestFinancialData;
+                    $financialData = $latestFinancial ? [
+                        'price' => $latestFinancial->price,
+                        'change_percent' => $latestFinancial->change_percent,
+                        'volume' => $latestFinancial->volume,
+                        'market_cap' => $latestFinancial->market_cap,
+                        'pe_ratio' => $latestFinancial->pe_ratio,
+                        'dividend_yield' => $latestFinancial->dividend_yield,
+                        'high_52w' => $latestFinancial->high_52w,
+                        'low_52w' => $latestFinancial->low_52w,
+                    ] : [];
+                    
+                    $analysis = $service->analyzeSentiment(
+                        $articles,
+                        $stockSymbol->symbol,
+                        $stockSymbol->company_name,
+                        $financialData
+                    );
 
-                    // Salva análise no banco de dados
-                    SentimentAnalysis::create([
+                    // Prepara dados para salvar (campos obrigatórios primeiro)
+                    $sentimentData = [
                         'stock_symbol_id' => $stockSymbol->id,
                         'symbol' => $stockSymbol->symbol,
                         'sentiment' => $analysis['sentiment'],
                         'sentiment_score' => $analysis['sentiment_score'],
                         'news_count' => $analysis['news_count'],
-                        'positive_count' => $analysis['positive_count'],
-                        'negative_count' => $analysis['negative_count'],
-                        'neutral_count' => $analysis['neutral_count'],
-                        'trending_topics' => $analysis['trending_topics'],
-                        'news_sources' => $analysis['news_sources'],
-                        'raw_data' => $analysis['raw_data'],
-                        'source' => 'news_api',
+                        'positive_count' => $analysis['positive_count'] ?? 0,
+                        'negative_count' => $analysis['negative_count'] ?? 0,
+                        'neutral_count' => $analysis['neutral_count'] ?? 0,
+                        'trending_topics' => is_array($analysis['trending_topics'] ?? null) 
+                            ? implode(', ', $analysis['trending_topics']) 
+                            : ($analysis['trending_topics'] ?? null),
+                        'news_sources' => $analysis['news_sources'] ?? null,
+                        'raw_data' => $analysis['raw_data'] ?? null,
+                        'source' => 'news_api_llm', // Indica que foi enriquecido com LLM
                         'analyzed_at' => now(),
-                    ]);
+                    ];
+                    
+                    // Adiciona campos de análise de mercado e macroeconomia (se disponíveis)
+                    if (isset($analysis['market_analysis'])) {
+                        $sentimentData['market_analysis'] = $analysis['market_analysis'];
+                    }
+                    if (isset($analysis['macroeconomic_analysis'])) {
+                        $sentimentData['macroeconomic_analysis'] = $analysis['macroeconomic_analysis'];
+                    }
+                    if (isset($analysis['key_insights'])) {
+                        $sentimentData['key_insights'] = $analysis['key_insights'];
+                    }
+                    if (isset($analysis['recommendation'])) {
+                        $sentimentData['recommendation'] = $analysis['recommendation'];
+                    }
+                    
+                    // Adiciona métricas de marca (se disponíveis)
+                    if (isset($analysis['total_mentions'])) {
+                        $sentimentData['total_mentions'] = $analysis['total_mentions'];
+                    }
+                    if (isset($analysis['mentions_peak'])) {
+                        $sentimentData['mentions_peak'] = $analysis['mentions_peak'];
+                    }
+                    if (isset($analysis['mentions_timeline'])) {
+                        $sentimentData['mentions_timeline'] = $analysis['mentions_timeline'];
+                    }
+                    if (isset($analysis['sentiment_breakdown'])) {
+                        $sentimentData['sentiment_breakdown'] = $analysis['sentiment_breakdown'];
+                    }
+                    if (isset($analysis['engagement_metrics'])) {
+                        $sentimentData['engagement_metrics'] = $analysis['engagement_metrics'];
+                    }
+                    if (isset($analysis['engagement_score'])) {
+                        $sentimentData['engagement_score'] = $analysis['engagement_score'];
+                    }
+                    if (isset($analysis['investor_confidence'])) {
+                        $sentimentData['investor_confidence'] = $analysis['investor_confidence'];
+                    }
+                    if (isset($analysis['confidence_score'])) {
+                        $sentimentData['confidence_score'] = $analysis['confidence_score'];
+                    }
+                    if (isset($analysis['brand_perception'])) {
+                        $sentimentData['brand_perception'] = $analysis['brand_perception'];
+                    }
+                    if (isset($analysis['main_themes'])) {
+                        $sentimentData['main_themes'] = $analysis['main_themes'];
+                    }
+                    if (isset($analysis['emotions_analysis'])) {
+                        $sentimentData['emotions_analysis'] = $analysis['emotions_analysis'];
+                    }
+                    if (isset($analysis['actionable_insights'])) {
+                        $sentimentData['actionable_insights'] = $analysis['actionable_insights'];
+                    }
+                    if (isset($analysis['improvement_opportunities'])) {
+                        $sentimentData['improvement_opportunities'] = $analysis['improvement_opportunities'];
+                    }
+                    if (isset($analysis['risk_alerts'])) {
+                        $sentimentData['risk_alerts'] = $analysis['risk_alerts'];
+                    }
+                    if (isset($analysis['strategic_analysis'])) {
+                        $sentimentData['strategic_analysis'] = $analysis['strategic_analysis'];
+                    }
+                    
+                    // Normaliza estrutura de raw_data (otimizado: reutiliza lógica)
+                    $sentimentData['raw_data'] = $this->normalizeRawData($sentimentData['raw_data'] ?? [], $analysis);
+                    
+                    // Salva análise no banco de dados (com dados enriquecidos)
+                    SentimentAnalysis::create($sentimentData);
 
                     $analyzedCount++;
-                    $this->line("  ✓ {$stockSymbol->symbol}: {$analysis['sentiment']} (score: {$analysis['sentiment_score']})");
+                    $this->line("  {$stockSymbol->symbol}: {$analysis['sentiment']} (score: {$analysis['sentiment_score']})");
 
                     Log::info('Agent Pedro: Análise concluída', [
                         'symbol' => $stockSymbol->symbol,
@@ -118,9 +205,9 @@ class AgentPedroAnalyze extends Command
             $bar->finish();
             $this->newLine();
 
-            $this->info("✅ Análise concluída! {$analyzedCount} ação(ões) analisada(s) com sucesso.");
+            $this->info(" Análise concluída! {$analyzedCount} ação(ões) analisada(s) com sucesso.");
             if ($errorCount > 0) {
-                $this->warn("⚠️ {$errorCount} erro(s) durante a análise.");
+                $this->warn(" {$errorCount} erro(s) durante a análise.");
             }
 
             Log::info('Agent Pedro: Análise de sentimento concluída', [
@@ -132,7 +219,7 @@ class AgentPedroAnalyze extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $this->error('❌ Erro ao analisar sentimento: ' . $e->getMessage());
+            $this->error(' Erro ao analisar sentimento: ' . $e->getMessage());
             Log::error('Agent Pedro: Erro ao analisar sentimento', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -158,6 +245,44 @@ class AgentPedroAnalyze extends Command
         } else {
             return StockSymbol::active()->default()->get();
         }
+    }
+
+    /**
+     * Normaliza estrutura de raw_data para formato consistente
+     * Reutiliza lógica do OrchestrationController
+     */
+    protected function normalizeRawData($rawData, array $analysis): array
+    {
+        $normalizedRawData = [
+            'articles' => [],
+            '_analysis' => []
+        ];
+        
+        // Se raw_data é array de artigos (estrutura antiga), converte
+        if (is_array($rawData) && isset($rawData[0]) && is_array($rawData[0])) {
+            $normalizedRawData['articles'] = $rawData;
+        } elseif (isset($rawData['articles']) && is_array($rawData['articles'])) {
+            $normalizedRawData['articles'] = $rawData['articles'];
+            if (isset($rawData['_analysis']) && is_array($rawData['_analysis'])) {
+                $normalizedRawData['_analysis'] = $rawData['_analysis'];
+            }
+        }
+        
+        // Adiciona novos dados em _analysis
+        if (isset($analysis['digital_data'])) {
+            $normalizedRawData['_analysis']['digital_data'] = $analysis['digital_data'];
+        }
+        if (isset($analysis['behavioral_data'])) {
+            $normalizedRawData['_analysis']['behavioral_data'] = $analysis['behavioral_data'];
+        }
+        if (isset($analysis['strategic_insights'])) {
+            $normalizedRawData['_analysis']['strategic_insights'] = $analysis['strategic_insights'];
+        }
+        if (isset($analysis['cost_optimization'])) {
+            $normalizedRawData['_analysis']['cost_optimization'] = $analysis['cost_optimization'];
+        }
+        
+        return $normalizedRawData;
     }
 }
 

@@ -89,5 +89,21 @@ class Article extends Model
     {
         return $query->where('symbol', $symbol);
     }
+
+    /**
+     * Scope para matérias aprovadas
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'aprovado');
+    }
+
+    /**
+     * Scope para matérias publicadas
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'publicado');
+    }
 }
 

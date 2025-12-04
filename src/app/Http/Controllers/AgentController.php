@@ -13,21 +13,46 @@ use Illuminate\Support\Facades\Log;
 class AgentController extends Controller
 {
     /**
-     * Executa o agente Júlia (coleta dados financeiros)
+     * Executa o agente Júlia (coleta de dados financeiros)
+     * 
+     * O Agente Júlia coleta dados financeiros atualizados de mercado:
+     * - Preço atual e histórico
+     * - Volume negociado
+     * - Indicadores financeiros (P/L, Dividend Yield, etc.)
+     * - Capitalização de mercado
+     * - Máximas e mínimas de 52 semanas
+     * 
+     * Aceita:
+     * - symbol: Ticker da ação (ex: PETR4)
+     * - company_name: Nome da empresa (ex: Petrobras) - usa script Python
+     * - all: Coletar todas as ações
+     * - use_python: Forçar uso do script Python
      */
     public function runJulia(Request $request): JsonResponse
     {
         try {
             $symbol = $request->get('symbol');
+            $companyName = $request->get('company_name');
             $all = $request->boolean('all', false);
+            $usePython = $request->boolean('use_python', false);
 
             $command = 'agent:julia:fetch';
             $params = [];
 
             if ($all) {
                 $params['--all'] = true;
+            } elseif ($companyName) {
+                $params['--company_name'] = $companyName;
+                // Se há company_name, usa Python por padrão
+                if (!$symbol) {
+                    $params['--use-python'] = true;
+                }
             } elseif ($symbol) {
-                $params['--symbol'] = $symbol;
+                $params['--company_name'] = $symbol; // Mantém compatibilidade
+            }
+
+            if ($usePython) {
+                $params['--use-python'] = true;
             }
 
             Artisan::call($command, $params);
@@ -36,7 +61,7 @@ class AgentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Agente Júlia executado com sucesso',
+                'message' => 'Agente Júlia executado com sucesso. Dados financeiros coletados.',
                 'output' => $output,
             ]);
         } catch (\Exception $e) {
@@ -52,7 +77,15 @@ class AgentController extends Controller
     }
 
     /**
-     * Executa o agente Pedro (análise de sentimento)
+     * Executa o agente Pedro (análise de sentimento de mercado e opiniões da mídia)
+     * 
+     * O Agente Pedro analisa:
+     * - Sentimento de mercado
+     * - Opiniões da mídia
+     * - Dados digitais (volume de menções, engajamento, alcance)
+     * - Dados comportamentais (intenções de compra, reclamações, feedback)
+     * - Insights estratégicos (preço, concorrência, tendências, satisfação)
+     * - Otimização de custos (onde cortar ou investir)
      */
     public function runPedro(Request $request): JsonResponse
     {
@@ -75,7 +108,7 @@ class AgentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Agente Pedro executado com sucesso',
+                'message' => 'Agente Pedro executado com sucesso. Análise de sentimento de mercado e opiniões da mídia concluída.',
                 'output' => $output,
             ]);
         } catch (\Exception $e) {
@@ -91,7 +124,14 @@ class AgentController extends Controller
     }
 
     /**
-     * Executa o agente Key (geração de matéria)
+     * Executa o agente Key (redatora veterana de jornal financeiro)
+     * 
+     * A redatora veterana transforma os dados coletados pelos Agentes Júlia e Pedro
+     * em uma matéria jornalística profissional, clara, objetiva e aprofundada.
+     * 
+     * Requisitos:
+     * - Dados financeiros do Agente Júlia
+     * - Análise de sentimento completa do Agente Pedro
      */
     public function runKey(Request $request): JsonResponse
     {
@@ -116,7 +156,7 @@ class AgentController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Agente Key executado com sucesso',
+                'message' => 'Agente Key executado com sucesso. Matéria jornalística gerada pela redatora veterana.',
                 'output' => $output,
             ]);
         } catch (\Exception $e) {
@@ -219,21 +259,24 @@ class AgentController extends Controller
         $agents = [
             'Julia' => [
                 'name' => 'Agente Júlia',
-                'description' => 'Coleta dados financeiros de mercado',
+                'description' => 'Coleta dados financeiros de mercado (preço, volume, indicadores, capitalização)',
                 'command' => 'agent:julia:fetch',
                 'schedule' => 'A cada 10 minutos',
+                'responsibility' => 'Coleta de dados financeiros atualizados',
             ],
             'Pedro' => [
                 'name' => 'Agente Pedro',
-                'description' => 'Analisa sentimento de mercado e mídia',
+                'description' => 'Analisa sentimento de mercado e opiniões da mídia (dados digitais, comportamentais, insights estratégicos)',
                 'command' => 'agent:pedro:analyze',
                 'schedule' => 'A cada hora',
+                'responsibility' => 'Análise de sentimento de mercado e opiniões da mídia',
             ],
             'Key' => [
                 'name' => 'Agente Key',
-                'description' => 'Gera rascunho de matéria financeira',
+                'description' => 'Redatora veterana de jornal financeiro - transforma dados em matéria jornalística profissional',
                 'command' => 'agent:key:compose',
                 'schedule' => 'A cada 30 minutos',
+                'responsibility' => 'Redação jornalística profissional, clara, objetiva e aprofundada',
             ],
             'PublishNotify' => [
                 'name' => 'Agente PublishNotify',

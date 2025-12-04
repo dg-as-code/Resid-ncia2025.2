@@ -29,7 +29,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
  * Arquitetura (sugestão):
  *  - Comandos Artisan / Jobs / Queues para cada etapa (coleta, análise, redação, notificação).
  *  - Júlia e Pedro podem ser implementados como Jobs que chamam serviços externos (APIs / Python microservices).
- *  - Key pode ser um serviço que consolida as saídas e gera um rascunho (p. ex. usando um LLM via API).
+ *  - Key pode ser um serviço que consolida as saídas e gera um rascunho (p. ex. usando um LLM Gemini via API).
  *  - Fator humano: notificação por e-mail / dashboard para revisão; após aprovação, publica-se no CMS.
  *
  * Observações de segurança e compliance:

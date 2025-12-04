@@ -40,11 +40,14 @@ class StockSymbolsApiTest extends TestCase
             'company_name' => 'Petrobras',
         ]);
 
+        // Não usar eager loading para evitar problemas com relacionamentos em testes
         $response = $this->getJson("/api/stock-symbols/{$symbol->id}");
 
         $response->assertStatus(200)
             ->assertJson([
+                'success' => true,
                 'data' => [
+                    'id' => $symbol->id,
                     'symbol' => 'PETR4',
                     'company_name' => 'Petrobras',
                 ],
@@ -84,6 +87,7 @@ class StockSymbolsApiTest extends TestCase
 
         $this->assertDatabaseHas('stock_symbols', [
             'symbol' => 'NEW4',
+            'company_name' => 'New Company',
         ]);
     }
 }

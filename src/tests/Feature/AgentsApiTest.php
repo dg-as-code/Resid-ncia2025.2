@@ -31,7 +31,7 @@ class AgentsApiTest extends TestCase
     public function it_can_execute_julia_agent()
     {
         $response = $this->postJson('/api/agents/julia', [
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
         ]);
 
         $response->assertStatus(200)

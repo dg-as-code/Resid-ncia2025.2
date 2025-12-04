@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Noticias_DestaquesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,15 +30,63 @@ use App\Http\Controllers\Noticias_DestaquesController;
 |--------------------------------------------------------------------------
 */
 
-// Rota principal - página de boas-vindas
-Route::get('/', function () {
-    return view('welcome');
-});
-
 /*
 |--------------------------------------------------------------------------
-| Rotas de Desenvolvimento (Comentadas)
+| Rotas Principais
 |--------------------------------------------------------------------------
 */
 
-// Route::get('/cadastrar', [Noticias_DestaquesController::class, 'novo']);
+// Dashboard principal
+Route::get('/', function () {
+    return redirect()->route('dashboard');
+})->name('home');
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
+
+// Artigos
+Route::get('/articles', function () {
+    return view('articles.index');
+})->name('articles.index');
+
+Route::get('/articles/review', function () {
+    return view('articles.review');
+})->name('articles.review');
+
+Route::get('/articles/{id}', function ($id) {
+    return view('articles.show', ['id' => $id]);
+})->name('articles.show');
+
+// Dados Financeiros
+Route::get('/financial-data', function () {
+    return view('financial-data.index');
+})->name('financial-data.index');
+
+// Análise de Sentimento
+Route::get('/sentiment', function () {
+    return view('sentiment.index');
+})->name('sentiment.index');
+
+// Controle de Agentes
+Route::get('/agents/control', function () {
+    return view('agents.control');
+})->name('agents.control');
+
+// Orquestração Completa
+Route::get('/orchestrate', function () {
+    return view('orchestrate');
+})->name('orchestrate');
+
+/*
+|--------------------------------------------------------------------------
+| Rotas Legadas (Removidas - arquivo front.html não existe mais)
+|--------------------------------------------------------------------------
+*/
+
+
+/*
+|--------------------------------------------------------------------------
+| Rotas de Desenvolvimento (Removidas - não utilizadas)
+|--------------------------------------------------------------------------
+*/

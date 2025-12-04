@@ -5,33 +5,80 @@ services:
       dockerfile: Dockerfile
     image: laravel_app
     container_name: laravel_app
+    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:80"
+      - "4430:443"
     volumes:
       - ./src:/var/www/app
+      - ./src/storage:/var/www/app/storage
+      - ./src/bootstrap/cache:/var/www/app/bootstrap/cache
+    environment:
+      # Aplicação
+      APP_NAME: "Sistema de Agentes de IA"
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      
+      # Banco de Dados (conecta ao serviço db)
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: db
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      
+      # Cache e Sessões
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+      
+      # Serviço LLM (conecta ao serviço llm)
+      LLM_PROVIDER: gemini
+      PYTHON_PATH: python3
+      LLM_SCRIPT_PATH: llm/scripts/run_llm.py
+      LLM_TIMEOUT: 60
+      
+      # Configurações dos Agentes de IA
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-pro}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
+      GEMINI_TIMEOUT: ${GEMINI_TIMEOUT:-60}
+      NEWS_API_KEY: ${NEWS_API_KEY}
+      JWT_KEY: ${JWT_KEY}
     depends_on:
       - db
       - llm
     networks:
       - laravel_network
+    healthcheck:
+      test: ["CMD", "php", "-r", "file_get_contents('http://localhost:80/api/agents/status');"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
     image: mysql:5.7
     platform: linux/x86_64
-    container_name: db_agenda
+    container_name: db_agentes_ia
     restart: always
     environment:
       MYSQL_DATABASE: db
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
+      TZ: America/Recife
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - laravel_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   llm:
     build:
@@ -42,13 +89,27 @@ services:
     restart: unless-stopped
     volumes:
       - ./src/llm:/app
-    command: ["python", "main.py"]
+    environment:
+      # Variáveis de ambiente para o serviço LLM
+      # GEMINI_API_KEY, GEMINI_MODEL, etc. podem ser passadas aqui
+      # ou lidas do .env montado no volume
+      PYTHONUNBUFFERED: 1
+    # Comando para manter o serviço em execução contínua
+    command: ["python", "-u", "main.py"]
     networks:
       - laravel_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   db_data:
+    driver: local
 
 networks:
   laravel_network:
     driver: bridge
+    name: laravel_network

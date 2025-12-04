@@ -13,6 +13,11 @@ class CreateAgendasTable extends Migration
      */
     public function up()
     {
+        // Verifica se a tabela já existe antes de criar
+        if (Schema::hasTable('agendas')) {
+            return;
+        }
+
         Schema::create('agendas', function (Blueprint $table) {
             $table->id();
             $table->string('nome');

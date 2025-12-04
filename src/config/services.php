@@ -47,19 +47,19 @@ return [
     */
 
     /*
-    | OpenAI API (Agente Júlia)
+    | Google Gemini API (Agente Júlia)
     | 
-    | Usa OpenAI para buscar dados financeiros de ações.
+    | Usa Google Gemini para buscar dados financeiros de ações.
     | O serviço mantém o nome YahooFinanceService para compatibilidade.
     | 
-    | Nota: OpenAI pode não ter dados atualizados em tempo real.
+    | Nota: Gemini pode não ter dados atualizados em tempo real.
     | Para produção, considere usar APIs financeiras especializadas.
     */
     'yahoo_finance' => [
         // Mantido para compatibilidade, mas não é mais usado
-        'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-        'timeout' => env('OPENAI_TIMEOUT', 60),
-        'rate_limit' => env('OPENAI_RATE_LIMIT', 60), // requisições por minuto
+        'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
+        'timeout' => env('GEMINI_TIMEOUT', 60),
+        'rate_limit' => env('GEMINI_RATE_LIMIT', 60), // requisições por minuto
     ],
 
     /*
@@ -79,26 +79,19 @@ return [
     | LLM / Python Integration (Agente Key)
     | 
     | Configurações para integração com modelos de linguagem.
-    | Pode usar APIs externas (OpenAI, Anthropic) ou scripts Python locais.
+    | Usa Google Gemini como provider principal.
     */
     'llm' => [
-        'provider' => env('LLM_PROVIDER', 'python'), // 'python', 'openai', 'anthropic'
+        'provider' => env('LLM_PROVIDER', 'gemini'), // 'gemini', 'python', 'openai', 'anthropic'
         'python_path' => env('PYTHON_PATH', 'python3'),
         'python_script_path' => env('LLM_SCRIPT_PATH', 'llm/scripts/run_llm.py'),
         'timeout' => env('LLM_TIMEOUT', 60), // segundos
         
-        // OpenAI (se usar OpenAI API)
-        'openai' => [
-            'api_key' => env('OPENAI_API_KEY'),
-            'model' => env('OPENAI_MODEL', 'gpt-3.5-turbo'),
-            'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com/v1'),
-        ],
-        
-        // Anthropic (se usar Claude API)
-        'anthropic' => [
-            'api_key' => env('ANTHROPIC_API_KEY'),
-            'model' => env('ANTHROPIC_MODEL', 'claude-3-sonnet-20240229'),
-            'base_url' => env('ANTHROPIC_BASE_URL', 'https://api.anthropic.com/v1'),
+        // Google Gemini (provider principal)
+        'gemini' => [
+            'api_key' => env('GEMINI_API_KEY'),
+            'model' => env('GEMINI_MODEL', 'gemini-pro'),
+            'base_url' => env('GEMINI_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta'),
         ],
     ],
 

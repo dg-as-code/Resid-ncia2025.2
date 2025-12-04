@@ -16,7 +16,7 @@ from pathlib import Path
 # Adiciona o diretório utils ao path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'utils'))
 
-from llm_utils import format_input_data
+from llm.utils.llm_utils import format_input_data
 
 def load_input_data(file_path):
     """
@@ -64,7 +64,7 @@ def save_prepared_data(prepared_data, output_path):
     try:
         with open(output_path, 'w', encoding='utf-8') as file:
             json.dump(prepared_data, file, indent=4, ensure_ascii=False)
-        print(f"✅ Dados preparados salvos em: {output_path}")
+        print(f" Dados preparados salvos em: {output_path}")
     except Exception as e:
         print(f"Erro ao salvar dados: {str(e)}", file=sys.stderr)
         sys.exit(1)
@@ -83,13 +83,13 @@ def main(input_file=None, output_file=None):
     if not output_file:
         output_file = os.getenv('OUTPUT_FILE', 'prepared_output.json')
     
-    print(f"📥 Carregando dados de: {input_file}")
+    print(f" Carregando dados de: {input_file}")
     data = load_input_data(input_file)
     
-    print("🔄 Preparando dados...")
+    print(" Preparando dados...")
     prepared_data = prepare_data(data)
     
-    print(f"💾 Salvando dados preparados em: {output_file}")
+    print(f" Salvando dados preparados em: {output_file}")
     save_prepared_data(prepared_data, output_file)
 
 if __name__ == "__main__":

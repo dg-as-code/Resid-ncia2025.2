@@ -30,16 +30,16 @@ class FinancialData extends Model
     ];
 
     protected $casts = [
-        'price' => 'decimal:4',
-        'previous_close' => 'decimal:4',
-        'change' => 'decimal:4',
-        'change_percent' => 'decimal:4',
-        'volume' => 'decimal:0',
-        'market_cap' => 'decimal:0',
-        'pe_ratio' => 'decimal:4',
-        'dividend_yield' => 'decimal:4',
-        'high_52w' => 'decimal:4',
-        'low_52w' => 'decimal:4',
+        'price' => 'float',
+        'previous_close' => 'float',
+        'change' => 'float',
+        'change_percent' => 'float',
+        'volume' => 'integer',
+        'market_cap' => 'integer',
+        'pe_ratio' => 'float',
+        'dividend_yield' => 'float',
+        'high_52w' => 'float',
+        'low_52w' => 'float',
         'raw_data' => 'array',
         'collected_at' => 'datetime',
     ];

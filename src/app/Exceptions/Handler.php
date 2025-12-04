@@ -189,7 +189,7 @@ class Handler extends ExceptionHandler
             
             $message = strtolower($e->getMessage());
             foreach ($criticalMessages as $criticalMsg) {
-                if (str_contains($message, $criticalMsg)) {
+                if (strpos($message, $criticalMsg) !== false) {
                     return true;
                 }
             }
@@ -221,8 +221,10 @@ class Handler extends ExceptionHandler
         ];
 
         foreach ($agentKeywords as $keyword) {
-            if (str_contains(strtolower($trace), strtolower($keyword)) || 
-                str_contains($message, strtolower($keyword))) {
+            $lowerTrace = strtolower($trace);
+            $lowerKeyword = strtolower($keyword);
+            if (strpos($lowerTrace, $lowerKeyword) !== false || 
+                strpos($message, $lowerKeyword) !== false) {
                 return true;
             }
         }
@@ -238,23 +240,23 @@ class Handler extends ExceptionHandler
         $trace = strtolower($e->getTraceAsString());
         $message = strtolower($e->getMessage());
 
-        if (str_contains($trace, 'agentjuliafetch') || str_contains($message, 'júlia') || str_contains($message, 'julia')) {
+        if (strpos($trace, 'agentjuliafetch') !== false || strpos($message, 'júlia') !== false || strpos($message, 'julia') !== false) {
             return 'AgentJulia';
         }
 
-        if (str_contains($trace, 'agentpedroanalyze') || str_contains($message, 'pedro')) {
+        if (strpos($trace, 'agentpedroanalyze') !== false || strpos($message, 'pedro') !== false) {
             return 'AgentPedro';
         }
 
-        if (str_contains($trace, 'agentkeycompose') || str_contains($message, 'key')) {
+        if (strpos($trace, 'agentkeycompose') !== false || strpos($message, 'key') !== false) {
             return 'AgentKey';
         }
 
-        if (str_contains($trace, 'agentpublishnotify') || str_contains($message, 'notify')) {
+        if (strpos($trace, 'agentpublishnotify') !== false || strpos($message, 'notify') !== false) {
             return 'AgentPublishNotify';
         }
 
-        if (str_contains($trace, 'agentcleanup') || str_contains($message, 'cleanup')) {
+        if (strpos($trace, 'agentcleanup') !== false || strpos($message, 'cleanup') !== false) {
             return 'AgentCleanup';
         }
 
@@ -311,7 +313,7 @@ class Handler extends ExceptionHandler
         ];
 
         foreach ($apiKeywords as $keyword) {
-            if (str_contains($trace, $keyword) || str_contains($message, $keyword)) {
+            if (strpos($trace, $keyword) !== false || strpos($message, $keyword) !== false) {
                 return true;
             }
         }
@@ -328,19 +330,19 @@ class Handler extends ExceptionHandler
         $trace = strtolower($e->getTraceAsString());
         $message = strtolower($e->getMessage());
 
-        if (str_contains($trace, 'yahoofinanceservice') || str_contains($message, 'yahoo')) {
+        if (strpos($trace, 'yahoofinanceservice') !== false || strpos($message, 'yahoo') !== false) {
             return 'YahooFinance';
         }
 
-        if (str_contains($trace, 'newsanalysisservice') || str_contains($message, 'newsapi') || str_contains($message, 'news api')) {
+        if (strpos($trace, 'newsanalysisservice') !== false || strpos($message, 'newsapi') !== false || strpos($message, 'news api') !== false) {
             return 'NewsAPI';
         }
 
-        if (str_contains($message, 'rate limit')) {
+        if (strpos($message, 'rate limit') !== false) {
             return 'RateLimit';
         }
 
-        if (str_contains($message, 'timeout') || str_contains($message, 'timed out')) {
+        if (strpos($message, 'timeout') !== false || strpos($message, 'timed out') !== false) {
             return 'Timeout';
         }
 
@@ -367,9 +369,9 @@ class Handler extends ExceptionHandler
         ];
 
         foreach ($pythonKeywords as $keyword) {
-            if (str_contains($trace, $keyword) || 
-                str_contains($message, $keyword) || 
-                str_contains($file, $keyword)) {
+            if (strpos($trace, $keyword) !== false || 
+                strpos($message, $keyword) !== false || 
+                strpos($file, $keyword) !== false) {
                 return true;
             }
         }

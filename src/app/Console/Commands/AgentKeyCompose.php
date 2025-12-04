@@ -45,7 +45,7 @@ class AgentKeyCompose extends Command
      */
     public function handle()
     {
-        $this->info('✍️ Agente Key iniciando composição de matéria...');
+        $this->info(' Agente Key iniciando composição de matéria...');
 
         try {
             $symbol = $this->option('symbol');
@@ -58,11 +58,11 @@ class AgentKeyCompose extends Command
             $symbolsToProcess = $this->getSymbolsToProcess($symbol, $force);
 
             if (empty($symbolsToProcess)) {
-                $this->warn('⚠️ Nenhuma ação com dados suficientes para gerar matéria.');
+                $this->warn(' Nenhuma ação com dados suficientes para gerar matéria.');
                 return Command::SUCCESS;
             }
 
-            $this->info("📝 Gerando matérias para " . count($symbolsToProcess) . " ação(ões)...");
+            $this->info(" Gerando matérias para " . count($symbolsToProcess) . " ação(ões)...");
 
             $bar = $this->output->createProgressBar(count($symbolsToProcess));
             $bar->start();
@@ -82,7 +82,7 @@ class AgentKeyCompose extends Command
                     // Verifica se há dados suficientes
                     if (!$financialData || !$sentimentAnalysis) {
                         if (!$force) {
-                            $this->line("  ⚠ {$stockSymbol->symbol}: Dados insuficientes (financeiro: " . ($financialData ? '✓' : '✗') . ", sentimento: " . ($sentimentAnalysis ? '✓' : '✗') . ")");
+                            $this->line("  {$stockSymbol->symbol}: Dados insuficientes (financeiro: " . ($financialData ? '✓' : '✗') . ", sentimento: " . ($sentimentAnalysis ? '✓' : '✗') . ")");
                             $bar->advance();
                             continue;
                         }
@@ -100,6 +100,7 @@ class AgentKeyCompose extends Command
                         'dividend_yield' => $financialData->dividend_yield,
                         'high_52w' => $financialData->high_52w,
                         'low_52w' => $financialData->low_52w,
+                        'company_name' => $stockSymbol->company_name ?? null,
                     ] : [];
 
                     $sentimentDataArray = $sentimentAnalysis ? [
@@ -110,6 +111,27 @@ class AgentKeyCompose extends Command
                         'negative_count' => $sentimentAnalysis->negative_count,
                         'neutral_count' => $sentimentAnalysis->neutral_count,
                         'trending_topics' => $sentimentAnalysis->trending_topics,
+                        // Novos campos de análise de mercado
+                        'market_analysis' => $sentimentAnalysis->market_analysis,
+                        'macroeconomic_analysis' => $sentimentAnalysis->macroeconomic_analysis,
+                        'key_insights' => $sentimentAnalysis->key_insights,
+                        'recommendation' => $sentimentAnalysis->recommendation,
+                        // Métricas de marca
+                        'total_mentions' => $sentimentAnalysis->total_mentions,
+                        'mentions_peak' => $sentimentAnalysis->mentions_peak,
+                        'sentiment_breakdown' => $sentimentAnalysis->sentiment_breakdown,
+                        'engagement_metrics' => $sentimentAnalysis->engagement_metrics,
+                        'engagement_score' => $sentimentAnalysis->engagement_score,
+                        'investor_confidence' => $sentimentAnalysis->investor_confidence,
+                        'confidence_score' => $sentimentAnalysis->confidence_score,
+                        'brand_perception' => $sentimentAnalysis->brand_perception,
+                        'main_themes' => $sentimentAnalysis->main_themes,
+                        'actionable_insights' => $sentimentAnalysis->actionable_insights,
+                        'improvement_opportunities' => $sentimentAnalysis->improvement_opportunities,
+                        'risk_alerts' => $sentimentAnalysis->risk_alerts,
+                        'strategic_analysis' => $sentimentAnalysis->strategic_analysis,
+                        // Dados digitais e comportamentais (de raw_data)
+                        'raw_data' => $sentimentAnalysis->raw_data,
                     ] : [];
 
                     // Gera matéria usando LLM
@@ -140,7 +162,7 @@ class AgentKeyCompose extends Command
                     ]);
 
                     $generatedCount++;
-                    $this->line("  ✓ {$stockSymbol->symbol}: Matéria gerada");
+                    $this->line("  {$stockSymbol->symbol}: Matéria gerada");
 
                     Log::info('Agent Key: Matéria gerada', [
                         'symbol' => $stockSymbol->symbol,
@@ -160,10 +182,10 @@ class AgentKeyCompose extends Command
             $bar->finish();
             $this->newLine();
 
-            $this->info("✅ Composição concluída! {$generatedCount} matéria(s) gerada(s) com sucesso.");
-            $this->info('📝 Status: Pendente de revisão humana');
+            $this->info(" Composição concluída! {$generatedCount} matéria(s) gerada(s) com sucesso.");
+            $this->info(' Status: Pendente de revisão humana');
             if ($errorCount > 0) {
-                $this->warn("⚠️ {$errorCount} erro(s) durante a geração.");
+                $this->warn(" {$errorCount} erro(s) durante a geração.");
             }
 
             Log::info('Agent Key: Composição de matérias concluída', [
@@ -175,7 +197,7 @@ class AgentKeyCompose extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $this->error('❌ Erro ao gerar matéria: ' . $e->getMessage());
+            $this->error(' Erro ao gerar matéria: ' . $e->getMessage());
             Log::error('Agent Key: Erro ao gerar matéria', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

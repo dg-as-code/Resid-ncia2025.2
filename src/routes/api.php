@@ -188,3 +188,48 @@ Route::prefix('articles')->group(function () {
     Route::delete('/{id}', [App\Http\Controllers\ArticleController::class, 'destroy'])
         ->middleware(['JWTToken', 'can:delete,article']);
 });
+
+/*
+|--------------------------------------------------------------------------
+| Análises (Solicitação de Análises Completas)
+|--------------------------------------------------------------------------
+|
+| Rotas para solicitar análises completas (Júlia + Pedro + Key).
+| Cria uma cadeia de jobs para execução sequencial.
+|
+*/
+
+Route::prefix('analyses')->group(function () {
+    // POST /api/analyses - Solicita nova análise (requer autenticação)
+    Route::post('/', [App\Http\Controllers\AnalysisController::class, 'requestAnalysis'])
+        ->middleware('JWTToken');
+    
+    // GET /api/analyses - Lista todas as análises
+    Route::get('/', [App\Http\Controllers\AnalysisController::class, 'index']);
+    
+    // GET /api/analyses/{id} - Visualiza análise específica
+    Route::get('/{id}', [App\Http\Controllers\AnalysisController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Orquestração Completa (Novo Fluxo)
+|--------------------------------------------------------------------------
+|
+| Endpoint que executa o fluxo completo: Júlia → Pedro → Key → PublishNotify
+| Segue o fluxo especificado no prompt de orquestração.
+|
+*/
+
+Route::prefix('orchestrate')->group(function () {
+    // POST /api/orchestrate - Executa fluxo completo de orquestração
+    // Body: { "company_name": "Petrobras" }
+    // Retorna: JSON com dados de cada agente e para para revisão humana
+    Route::post('/', [App\Http\Controllers\OrchestrationController::class, 'orchestrate']);
+    
+    // POST /api/orchestrate/{articleId}/review - Processa decisão de aprovação/rejeição
+    // Body: { "decision": "approve" ou "reject", "motivo_reprovacao": "..." (se reject) }
+    // Retorna: Resultado da publicação ou salvamento do rascunho
+    Route::post('/{articleId}/review', [App\Http\Controllers\OrchestrationController::class, 'reviewDecision'])
+        ->middleware('JWTToken');
+});

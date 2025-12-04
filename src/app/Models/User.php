@@ -10,13 +10,30 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * Model User - Usuários do sistema
+ * Model User - Usuários do Sistema
  * 
- * Usuários podem revisar e aprovar artigos gerados pelos agentes de IA.
- * O sistema de agentes utiliza este modelo para:
- * - Revisão humana de matérias (Fator humano)
- * - Aprovação/reprovação de artigos
- * - Auditoria de revisões
+ * FLUXO DOS AGENTES:
+ * Usuários atuam como revisores humanos no fluxo de publicação.
+ * 
+ * Fluxo de Revisão:
+ * 1. Agente Key gera matéria → status: 'pendente_revisao'
+ * 2. Agente PublishNotify envia notificação ao editor
+ * 3. Usuário (editor) revisa a matéria
+ * 4. Usuário aprova ou reprova:
+ *    - Aprovação → status: 'aprovado' → pode ser publicado
+ *    - Reprovação → status: 'reprovado' (com motivo_reprovacao)
+ * 5. Se aprovado → status: 'publicado'
+ * 
+ * Papel do Usuário:
+ * - Revisão humana obrigatória antes da publicação (fator humano)
+ * - Aprovação/reprovação de artigos gerados pelo Agente Key
+ * - Auditoria de revisões (reviewed_at, reviewed_by)
+ * 
+ * Relacionamentos:
+ * - reviewedArticles: Artigos revisados pelo usuário
+ * - pendingArticles: Artigos pendentes de revisão (scope)
+ * - approvedArticles: Artigos aprovados pelo usuário
+ * - rejectedArticles: Artigos reprovados pelo usuário
  */
 class User extends Authenticatable
 {
@@ -50,11 +67,20 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
     /**
+     * Mutator para hash da senha (Laravel 8 não suporta cast 'hashed')
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = \Hash::make($value);
+    }
+
+    /**
      * Relacionamento com artigos revisados pelo usuário
+     * 
+     * Artigos gerados pelo Agente Key e revisados por este usuário.
      * 
      * @return HasMany
      */
@@ -64,7 +90,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Artigos pendentes de revisão pelo usuário
+     * Artigos pendentes de revisão (todos, não apenas do usuário)
+     * 
+     * Artigos gerados pelo Agente Key aguardando revisão humana.
      * 
      * @return HasMany
      */
@@ -77,6 +105,8 @@ class User extends Authenticatable
     /**
      * Artigos aprovados pelo usuário
      * 
+     * Artigos que este usuário aprovou após revisão.
+     * 
      * @return HasMany
      */
     public function approvedArticles(): HasMany
@@ -88,12 +118,27 @@ class User extends Authenticatable
     /**
      * Artigos reprovados pelo usuário
      * 
+     * Artigos que este usuário reprovou após revisão (com motivo_reprovacao).
+     * 
      * @return HasMany
      */
     public function rejectedArticles(): HasMany
     {
         return $this->hasMany(Article::class, 'reviewed_by')
             ->where('status', 'reprovado');
+    }
+
+    /**
+     * Artigos publicados revisados pelo usuário
+     * 
+     * Artigos que este usuário aprovou e foram publicados.
+     * 
+     * @return HasMany
+     */
+    public function publishedArticles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'reviewed_by')
+            ->where('status', 'publicado');
     }
 
     /**
@@ -117,13 +162,50 @@ class User extends Authenticatable
     }
 
     /**
-     * Conta artigos pendentes de revisão
+     * Conta artigos pendentes de revisão (todos, não apenas do usuário)
+     * 
+     * Útil para dashboards e notificações.
      * 
      * @return int
      */
     public function getPendingArticlesCountAttribute(): int
     {
-        // Retorna todos os artigos pendentes (não apenas os do usuário)
         return Article::pendingReview()->count();
+    }
+
+    /**
+     * Taxa de aprovação do usuário (0-100%)
+     * 
+     * Calcula a porcentagem de artigos aprovados em relação ao total revisado.
+     * 
+     * @return float
+     */
+    public function getApprovalRateAttribute(): float
+    {
+        $total = $this->reviewedArticles()->count();
+        if ($total === 0) {
+            return 0.0;
+        }
+        
+        $approved = $this->approvedArticles()->count();
+        return round(($approved / $total) * 100, 2);
+    }
+
+    /**
+     * Taxa de reprovação do usuário (0-100%)
+     * 
+     * Calcula a porcentagem de artigos reprovados em relação ao total revisado.
+     * 
+     * @return float
+     */
+    public function getRejectionRateAttribute(): float
+    {
+        $total = $this->reviewedArticles()->count();
+        if ($total === 0) {
+            return 0.0;
+        }
+        
+        $rejected = $this->rejectedArticles()->count();
+        return round(($rejected / $total) * 100, 2);
     }
 }

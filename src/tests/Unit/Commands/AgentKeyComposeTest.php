@@ -17,19 +17,19 @@ class AgentKeyComposeTest extends TestCase
     public function it_can_generate_article_from_financial_and_sentiment_data()
     {
         $symbol = StockSymbol::factory()->create([
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'is_active' => true,
         ]);
 
         $financialData = FinancialData::factory()->create([
             'stock_symbol_id' => $symbol->id,
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'collected_at' => now(),
         ]);
 
         $sentiment = SentimentAnalysis::factory()->create([
             'stock_symbol_id' => $symbol->id,
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'analyzed_at' => now(),
         ]);
 
@@ -38,7 +38,7 @@ class AgentKeyComposeTest extends TestCase
             ->assertExitCode(0);
 
         $this->assertDatabaseHas('articles', [
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'status' => 'pendente_revisao',
         ]);
     }
@@ -47,14 +47,14 @@ class AgentKeyComposeTest extends TestCase
     public function it_skips_symbols_without_recent_data()
     {
         $symbol = StockSymbol::factory()->create([
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'is_active' => true,
         ]);
 
         // Criar dados antigos (mais de 24 horas)
         FinancialData::factory()->create([
             'stock_symbol_id' => $symbol->id,
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'collected_at' => now()->subDays(2),
         ]);
 
@@ -64,7 +64,7 @@ class AgentKeyComposeTest extends TestCase
 
         // Não deve criar artigo para dados antigos
         $this->assertDatabaseMissing('articles', [
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
         ]);
     }
 }

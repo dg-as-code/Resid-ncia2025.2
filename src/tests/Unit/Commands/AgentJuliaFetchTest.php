@@ -19,16 +19,16 @@ class AgentJuliaFetchTest extends TestCase
     public function it_can_fetch_data_for_specific_symbol()
     {
         StockSymbol::factory()->create([
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
             'is_active' => true,
         ]);
 
-        $this->artisan('agent:julia:fetch', ['--symbol' => 'PETR4'])
+        $this->artisan('agent:julia:fetch', ['--symbol' => 'Petrobras'])
             ->expectsOutput('✅ Agente Júlia executado com sucesso')
             ->assertExitCode(0);
 
         $this->assertDatabaseHas('financial_data', [
-            'symbol' => 'PETR4',
+            'symbol' => 'Petrobras',
         ]);
     }
 

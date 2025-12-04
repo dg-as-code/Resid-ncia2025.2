@@ -13,6 +13,26 @@ class CreateArticlesTable extends Migration
      */
     public function up()
     {
+        // Verifica se a tabela já existe antes de criar
+        if (Schema::hasTable('articles')) {
+            // Se a tabela já existe, apenas verifica/adiciona a coluna reviewed_by se necessário
+            if (!Schema::hasColumn('articles', 'reviewed_by')) {
+                Schema::table('articles', function (Blueprint $table) {
+                    $table->foreignId('reviewed_by')->nullable()->after('reviewed_at')->constrained('users')->onDelete('set null');
+                });
+            } else {
+                // Tenta adicionar a foreign key se não existir (pode falhar silenciosamente se já existir)
+                try {
+                    Schema::table('articles', function (Blueprint $table) {
+                        $table->foreign('reviewed_by')->references('id')->on('users')->onDelete('set null');
+                    });
+                } catch (\Exception $e) {
+                    // Foreign key já existe ou erro ao criar, ignora
+                }
+            }
+            return;
+        }
+
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('stock_symbol_id')->constrained('stock_symbols')->onDelete('cascade');

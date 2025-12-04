@@ -29,6 +29,9 @@
 | O caminho base pode ser configurado via variável de ambiente APP_BASE_PATH.
 | Por padrão, usa o diretório pai do bootstrap.
 |
+| A aplicação Laravel automaticamente carrega o arquivo .env quando é criada,
+| incluindo todas as configurações dos agentes de IA (GEMINI_API_KEY, NEWS_API_KEY, etc).
+|
 */
 
 $app = new Illuminate\Foundation\Application(

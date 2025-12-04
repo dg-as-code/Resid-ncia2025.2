@@ -6,7 +6,6 @@ use App\Models\Article;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
 
 /**
  * Agente PublishNotify: Notificação para revisão humana
@@ -41,7 +40,7 @@ class AgentPublishNotify extends Command
      */
     public function handle()
     {
-        $this->info('📧 Agente PublishNotify verificando matérias pendentes...');
+        $this->info(' Agente PublishNotify verificando matérias pendentes...');
 
         try {
             $dryRun = $this->option('dry-run');
@@ -55,14 +54,14 @@ class AgentPublishNotify extends Command
                 ->get();
 
             if ($pendingArticles->isEmpty()) {
-                $this->info('✅ Nenhuma matéria pendente de revisão.');
+                $this->info(' Nenhuma matéria pendente de revisão.');
                 return Command::SUCCESS;
             }
 
-            $this->info("📝 Encontradas " . $pendingArticles->count() . " matéria(s) pendente(s) de revisão.");
+            $this->info(" Encontradas " . $pendingArticles->count() . " matéria(s) pendente(s) de revisão.");
 
             if ($dryRun) {
-                $this->warn('🔍 Modo dry-run: Notificações não serão enviadas.');
+                $this->warn(' Modo dry-run: Notificações não serão enviadas.');
                 $this->newLine();
                 foreach ($pendingArticles as $article) {
                     $this->line("  - ID: {$article->id} | {$article->symbol} | {$article->title}");
@@ -75,7 +74,7 @@ class AgentPublishNotify extends Command
             $recipients = $this->getRecipients($email);
 
             if (empty($recipients)) {
-                $this->warn('⚠️ Nenhum destinatário configurado para notificações.');
+                $this->warn(' Nenhum destinatário configurado para notificações.');
                 Log::warning('Agent PublishNotify: Nenhum destinatário configurado');
                 return Command::SUCCESS;
             }
@@ -86,7 +85,7 @@ class AgentPublishNotify extends Command
             foreach ($recipients as $recipient) {
                 try {
                     // Prepara dados para o email
-                    $subject = "📝 {$pendingArticles->count()} matéria(s) pendente(s) de revisão";
+                    $subject = " {$pendingArticles->count()} matéria(s) pendente(s) de revisão";
                     $viewData = [
                         'articles' => $pendingArticles,
                         'count' => $pendingArticles->count(),
@@ -116,8 +115,8 @@ class AgentPublishNotify extends Command
             Article::whereIn('id', $pendingArticles->pluck('id'))
                 ->update(['notified_at' => $now]);
 
-            $this->info("✅ Notificações enviadas para {$notifiedCount} destinatário(s)!");
-            $this->info("📧 {$pendingArticles->count()} matéria(s) marcada(s) como notificada(s).");
+            $this->info(" Notificações enviadas para {$notifiedCount} destinatário(s)!");
+            $this->info(" {$pendingArticles->count()} matéria(s) marcada(s) como notificada(s).");
 
             Log::info('Agent PublishNotify: Notificações enviadas', [
                 'articles_count' => $pendingArticles->count(),
@@ -128,7 +127,7 @@ class AgentPublishNotify extends Command
             return Command::SUCCESS;
 
         } catch (\Exception $e) {
-            $this->error('❌ Erro ao enviar notificações: ' . $e->getMessage());
+            $this->error(' Erro ao enviar notificações: ' . $e->getMessage());
             Log::error('Agent PublishNotify: Erro ao enviar notificações', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()

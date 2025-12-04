@@ -26,7 +26,7 @@ class FinancialDataFactory extends Factory
 
         return [
             'stock_symbol_id' => StockSymbol::factory(),
-            'symbol' => $this->faker->randomElement(['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3']),
+            'symbol' => $this->faker->randomElement(['Petrobras', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3']),
             'price' => $basePrice,
             'previous_close' => $basePrice - $change,
             'change' => $change,

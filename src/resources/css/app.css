@@ -1,0 +1,71 @@
+/* Sistema de Agentes de IA - Estilos Customizados */
+
+/* Animações */
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+.scanning-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #10b981;
+    animation: scan 2s linear infinite;
+    display: none;
+}
+
+.agent-active .scanning-line {
+    display: block;
+}
+
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f141b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333941;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #171c27;
+}
+
+/* Utilitários */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Prose para conteúdo de artigos */
+.prose {
+    color: #e5e7eb;
+}
+
+.prose p {
+    margin-bottom: 1rem;
+}
+
+.prose h1, .prose h2, .prose h3 {
+    color: #f3f4f6;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.prose strong {
+    color: #f9fafb;
+    font-weight: 600;
+}
+

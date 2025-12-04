@@ -21,7 +21,7 @@ class StockSymbolSeeder extends Seeder
      */
     public function run()
     {
-        $this->command->info('🌱 Populando ações monitoradas...');
+        $this->command->info(' Populando ações monitoradas...');
 
         $symbols = [
             // Ações principais (is_default = true) - coletadas automaticamente
@@ -57,13 +57,13 @@ class StockSymbolSeeder extends Seeder
             }
         }
 
-        $this->command->info("✅ {$created} ação(ões) criada(s), {$updated} atualizada(s)");
+        $this->command->info(" {$created} ação(ões) criada(s), {$updated} atualizada(s)");
         
         // Estatísticas
         $totalActive = StockSymbol::where('is_active', true)->count();
         $totalDefault = StockSymbol::where('is_default', true)->where('is_active', true)->count();
         
-        $this->command->info("📊 Total: {$totalActive} ação(ões) ativa(s), {$totalDefault} ação(ões) padrão");
+        $this->command->info(" Total: {$totalActive} ação(ões) ativa(s), {$totalDefault} ação(ões) padrão");
         
         Log::info('StockSymbolSeeder: Ações populadas', [
             'created' => $created,

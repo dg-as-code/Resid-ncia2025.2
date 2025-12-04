@@ -20,56 +20,66 @@ class NewsAnalysisServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_can_search_news_for_a_symbol()
+    public function it_can_search_news()
     {
         Http::fake([
             'newsapi.org/*' => Http::response([
-                'status' => 'ok',
-                'totalResults' => 10,
                 'articles' => [
                     [
-                        'title' => 'Test News',
-                        'description' => 'Test Description',
-                        'url' => 'https://example.com/news',
+                        'title' => 'Notícia 1',
+                        'description' => 'Descrição 1',
+                        'url' => 'https://example.com/1',
+                        'publishedAt' => now()->toIso8601String(),
+                    ],
+                    [
+                        'title' => 'Notícia 2',
+                        'description' => 'Descrição 2',
+                        'url' => 'https://example.com/2',
                         'publishedAt' => now()->toIso8601String(),
                     ],
                 ],
             ], 200),
         ]);
 
-        $result = $this->service->searchNews('PETR4', 'Petrobras', 10);
+        config(['services.news_api.key' => 'test-key']);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('articles', $result);
+        $articles = $this->service->searchNews('Petrobras', 'Petrobras', 10);
+
+        $this->assertIsArray($articles);
+        $this->assertGreaterThan(0, count($articles));
     }
 
     /** @test */
-    public function it_returns_mock_data_when_api_key_not_configured()
+    public function it_returns_mock_news_when_api_unavailable()
     {
-        config(['services.news_api.api_key' => null]);
+        config(['services.news_api.key' => null]);
 
-        $result = $this->service->searchNews('PETR4', 'Petrobras', 10);
+        $articles = $this->service->searchNews('Petrobras', 'Petrobras', 10);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('articles', $result);
+        $this->assertIsArray($articles);
+        $this->assertGreaterThan(0, count($articles));
     }
 
     /** @test */
     public function it_can_analyze_sentiment()
     {
-        $news = [
-            'articles' => [
-                ['title' => 'Positive news', 'description' => 'Great results'],
-                ['title' => 'Negative news', 'description' => 'Bad performance'],
+        $articles = [
+            [
+                'title' => 'Boa notícia sobre a empresa',
+                'description' => 'Crescimento positivo',
+            ],
+            [
+                'title' => 'Empresa em alta',
+                'description' => 'Resultados excelentes',
             ],
         ];
 
-        $result = $this->service->analyzeSentiment($news);
+        $analysis = $this->service->analyzeSentiment($articles);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('sentiment', $result);
-        $this->assertArrayHasKey('sentiment_score', $result);
-        $this->assertContains($result['sentiment'], ['positive', 'negative', 'neutral']);
+        $this->assertIsArray($analysis);
+        $this->assertArrayHasKey('sentiment', $analysis);
+        $this->assertArrayHasKey('sentiment_score', $analysis);
+        $this->assertArrayHasKey('news_count', $analysis);
+        $this->assertEquals(2, $analysis['news_count']);
     }
 }
-

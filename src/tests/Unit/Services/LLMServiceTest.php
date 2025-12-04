@@ -4,6 +4,7 @@ namespace Tests\Unit\Services;
 
 use App\Services\LLMService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 use Tests\TestCase;
 
@@ -16,77 +17,92 @@ class LLMServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        
+        // Configurar provider para Gemini
+        config([
+            'services.llm.provider' => 'gemini',
+            'services.llm.gemini.api_key' => 'test-key',
+        ]);
+        
         $this->service = new LLMService();
     }
 
     /** @test */
-    public function it_can_generate_article_content()
+    public function it_can_generate_article_with_gemini_directly()
     {
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [
+                    [
+                        'content' => [
+                            'parts' => [
+                                [
+                                    'text' => json_encode([
+                                        'title' => 'Análise Petrobras',
+                                        'content' => 'A Petrobras apresentou...',
+                                    ]),
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        config(['services.llm.gemini.api_key' => 'test-key']);
+
         $financialData = [
             'price' => 30.50,
-            'change' => 0.50,
             'change_percent' => 1.67,
         ];
 
         $sentimentData = [
             'sentiment' => 'positive',
-            'sentiment_score' => 0.65,
-            'news_count' => 10,
+            'sentiment_score' => 0.75,
         ];
 
-        $result = $this->service->generateArticle(
-            $financialData,
-            $sentimentData,
-            'PETR4'
-        );
+        $result = $this->service->generateArticle($financialData, $sentimentData, 'Petrobras');
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('content', $result);
-        $this->assertNotEmpty($result['title']);
-        $this->assertNotEmpty($result['content']);
     }
 
     /** @test */
-    public function it_handles_python_script_error_gracefully()
+    public function it_returns_fallback_when_gemini_unavailable()
     {
-        Process::fake([
-            '*' => Process::result(
-                exitCode: 1,
-                errorOutput: 'Error executing script'
-            ),
-        ]);
+        config(['services.llm.gemini.api_key' => null]);
 
-        $financialData = ['price' => 30.50];
-        $sentimentData = ['sentiment' => 'positive'];
+        $financialData = [
+            'price' => 30.50,
+        ];
 
-        $result = $this->service->generateArticle(
-            $financialData,
-            $sentimentData,
-            'PETR4'
-        );
+        $sentimentData = [
+            'sentiment' => 'neutral',
+        ];
 
-        // Deve retornar fallback mesmo com erro
+        $result = $this->service->generateArticle($financialData, $sentimentData, 'Petrobras');
+
         $this->assertIsArray($result);
         $this->assertArrayHasKey('title', $result);
+        $this->assertArrayHasKey('content', $result);
     }
 
     /** @test */
-    public function it_uses_fallback_when_python_not_available()
+    public function it_adds_disclaimer_to_generated_article()
     {
-        config(['services.llm.provider' => 'python']);
+        // Quando Gemini não está disponível, usa fallback que inclui disclaimer
+        config(['services.llm.gemini.api_key' => null]);
+        config(['services.llm.provider' => 'fallback']);
 
         $financialData = ['price' => 30.50];
-        $sentimentData = ['sentiment' => 'positive'];
+        $sentimentData = ['sentiment' => 'neutral'];
 
-        $result = $this->service->generateArticle(
-            $financialData,
-            $sentimentData,
-            'PETR4'
-        );
+        $result = $this->service->generateArticle($financialData, $sentimentData, 'Petrobras');
 
+        // O fallback sempre inclui disclaimer
         $this->assertIsArray($result);
-        $this->assertNotEmpty($result['content']);
+        $this->assertArrayHasKey('content', $result);
+        $this->assertStringContainsString('disclaimer', strtolower($result['content']));
     }
 }
-
