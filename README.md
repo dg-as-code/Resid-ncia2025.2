@@ -649,10 +649,184 @@ Executa Agente Júlia
 ```
 
 #### POST `/api/agents/pedro`
-Executa Agente Pedro
+Executa Agente Pedro (Análise de Sentimento de Mercado)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "message": "Agente Pedro executado com sucesso. Análise de sentimento de mercado e opiniões da mídia concluída.",
+  "output": "Análise de sentimento concluída para 3 ações...",
+  "data": {
+    "sentiment_analysis": {
+      "id": 42,
+      "symbol": "PETR4",
+      "sentiment": "positive",
+      "sentiment_score": 0.65,
+      "news_count": 15,
+      "positive_count": 9,
+      "negative_count": 3,
+      "neutral_count": 3,
+      "trending_topics": "expansão offshore, produção de petróleo, investimentos em energia renovável, resultados trimestrais",
+      "news_sources": ["Reuters", "Bloomberg", "Valor Econômico", "Infomoney"],
+      "analyzed_at": "2025-12-03T10:30:00.000000Z",
+      "market_analysis": {
+        "overall_trend": "alta",
+        "market_sentiment": "otimista",
+        "key_drivers": [
+          "Aumento na produção de petróleo",
+          "Investimentos em energia renovável",
+          "Expectativas positivas para o próximo trimestre"
+        ],
+        "market_volatility": "moderada"
+      },
+      "macroeconomic_analysis": {
+        "economic_outlook": "favorável",
+        "sector_performance": "superior à média",
+        "regulatory_environment": "estável"
+      },
+      "key_insights": [
+        "Empresa demonstra forte crescimento em produção",
+        "Investimentos em sustentabilidade bem recebidos pelo mercado",
+        "Expectativas positivas para próximos resultados"
+      ],
+      "recommendation": "manter",
+      "total_mentions": 1250,
+      "mentions_peak": {
+        "date": "2025-12-02",
+        "count": 180
+      },
+      "sentiment_breakdown": {
+        "social_media": {
+          "positive": 65,
+          "negative": 20,
+          "neutral": 15
+        },
+        "news_media": {
+          "positive": 60,
+          "negative": 20,
+          "neutral": 20
+        }
+      },
+      "engagement_metrics": {
+        "total_engagement": 8500,
+        "likes": 3200,
+        "shares": 1800,
+        "comments": 3500
+      },
+      "engagement_score": 0.72,
+      "investor_confidence": {
+        "level": "alto",
+        "score": 0.78,
+        "trend": "crescimento"
+      },
+      "confidence_score": 0.78,
+      "brand_perception": {
+        "overall": "positiva",
+        "trust_score": 0.75,
+        "innovation_score": 0.68,
+        "sustainability_score": 0.82
+      },
+      "main_themes": [
+        "Expansão de operações",
+        "Sustentabilidade",
+        "Resultados financeiros",
+        "Inovação tecnológica"
+      ],
+      "emotions_analysis": {
+        "joy": 0.45,
+        "trust": 0.60,
+        "fear": 0.15,
+        "surprise": 0.25
+      },
+      "actionable_insights": [
+        "Aumentar comunicação sobre investimentos em sustentabilidade",
+        "Manter foco em resultados operacionais",
+        "Fortalecer presença digital"
+      ],
+      "improvement_opportunities": [
+        "Ampliar comunicação sobre estratégia de longo prazo",
+        "Melhorar engajamento em redes sociais"
+      ],
+      "risk_alerts": [
+        "Volatilidade do preço do petróleo",
+        "Mudanças regulatórias no setor"
+      ],
+      "strategic_analysis": {
+        "competitive_position": "forte",
+        "market_share_trend": "crescimento",
+        "strategic_initiatives": [
+          "Expansão em energia renovável",
+          "Modernização de infraestrutura"
+        ]
+      },
+      "raw_data": {
+        "articles": [
+          {
+            "title": "Petrobras anuncia aumento na produção",
+            "source": "Reuters",
+            "published_at": "2025-12-02T08:00:00Z",
+            "sentiment": "positive"
+          }
+        ],
+        "_analysis": {
+          "digital_data": {
+            "mentions": 1250,
+            "engagement": 8500,
+            "reach": 150000
+          },
+          "behavioral_data": {
+            "purchase_intent": 0.65,
+            "complaints": 0.12,
+            "feedback_score": 0.78
+          }
+        }
+      }
+    },
+    "records_created": 1,
+    "symbols_processed": ["PETR4"]
+  }
+}
+```
 
 #### POST `/api/agents/key`
-Executa Agente Key
+Executa Agente Key (Geração de Matéria Jornalística)
+
+**Response** (200):
+```json
+{
+  "success": true,
+  "message": "Agente Key executado com sucesso. Matéria jornalística gerada pela redatora veterana.",
+  "output": "Matéria gerada para 2 ações...",
+  "data": {
+    "article": {
+      "id": 123,
+      "symbol": "PETR4",
+      "title": "Petrobras: Análise Aponta Sentimento Positivo do Mercado com Foco em Expansão e Sustentabilidade",
+      "content": "<h1>Petrobras: Análise Aponta Sentimento Positivo do Mercado com Foco em Expansão e Sustentabilidade</h1>\n\n<p><strong>Por Agente Key - Redatora Veterana</strong><br>\n<em>Publicado em: 03 de dezembro de 2025</em></p>\n\n<h2>Resumo Executivo</h2>\n\n<p>A <strong>Petrobras (PETR4)</strong> apresenta um cenário de <strong>sentimento positivo</strong> no mercado, com score de <strong>0.65</strong>, baseado na análise de <strong>15 notícias</strong> coletadas nas últimas 24 horas. A empresa demonstra forte crescimento em produção e investimentos estratégicos em energia renovável, gerando expectativas otimistas entre investidores.</p>\n\n<h2>Dados Financeiros</h2>\n\n<p>Com base nos dados coletados pelo <strong>Agente Júlia</strong>:</p>\n\n<ul>\n  <li><strong>Preço Atual:</strong> R$ 38,50</li>\n  <li><strong>Variação:</strong> +2,3% (R$ 0,87)</li>\n  <li><strong>Volume Negociado:</strong> 45.230.000 ações</li>\n  <li><strong>Capitalização de Mercado:</strong> R$ 520,8 bilhões</li>\n  <li><strong>P/L:</strong> 8,5</li>\n  <li><strong>Dividend Yield:</strong> 12,5%</li>\n  <li><strong>Máxima 52 semanas:</strong> R$ 42,30</li>\n  <li><strong>Mínima 52 semanas:</strong> R$ 28,10</li>\n</ul>\n\n<h2>Análise de Sentimento do Mercado</h2>\n\n<p>O <strong>Agente Pedro</strong> identificou um sentimento predominantemente <strong>positivo</strong> em relação à Petrobras, com <strong>9 notícias positivas</strong>, <strong>3 negativas</strong> e <strong>3 neutras</strong>. Os principais tópicos em destaque incluem:</p>\n\n<ul>\n  <li>Expansão offshore</li>\n  <li>Produção de petróleo</li>\n  <li>Investimentos em energia renovável</li>\n  <li>Resultados trimestrais</li>\n</ul>\n\n<h3>Análise de Mercado</h3>\n\n<p>O mercado demonstra uma <strong>tendência de alta</strong> com sentimento <strong>otimista</strong>. Os principais drivers incluem:</p>\n\n<ul>\n  <li>Aumento na produção de petróleo</li>\n  <li>Investimentos em energia renovável</li>\n  <li>Expectativas positivas para o próximo trimestre</li>\n</ul>\n\n<h3>Métricas de Engajamento</h3>\n\n<p>A empresa registrou <strong>1.250 menções</strong> nas últimas 24 horas, com pico de <strong>180 menções</strong> em 02 de dezembro. O engajamento total alcançou <strong>8.500 interações</strong>, distribuídas em:</p>\n\n<ul>\n  <li><strong>3.200 curtidas</strong></li>\n  <li><strong>1.800 compartilhamentos</strong></li>\n  <li><strong>3.500 comentários</strong></li>\n</ul>\n\n<h3>Confiança do Investidor</h3>\n\n<p>O nível de confiança dos investidores está <strong>alto</strong>, com score de <strong>0.78</strong>, demonstrando uma tendência de <strong>crescimento</strong>. A percepção da marca é <strong>positiva</strong>, com destaque para:</p>\n\n<ul>\n  <li><strong>Score de Confiança:</strong> 0.75</li>\n  <li><strong>Score de Inovação:</strong> 0.68</li>\n  <li><strong>Score de Sustentabilidade:</strong> 0.82</li>\n</ul>\n\n<h2>Insights Estratégicos</h2>\n\n<h3>Oportunidades de Melhoria</h3>\n\n<ul>\n  <li>Ampliar comunicação sobre estratégia de longo prazo</li>\n  <li>Melhorar engajamento em redes sociais</li>\n</ul>\n\n<h3>Alertas de Risco</h3>\n\n<ul>\n  <li>Volatilidade do preço do petróleo</li>\n  <li>Mudanças regulatórias no setor</li>\n</ul>\n\n<h3>Análise Estratégica</h3>\n\n<p>A Petrobras mantém uma <strong>posição competitiva forte</strong> no mercado, com tendência de <strong>crescimento</strong> na participação de mercado. As principais iniciativas estratégicas incluem:</p>\n\n<ul>\n  <li>Expansão em energia renovável</li>\n  <li>Modernização de infraestrutura</li>\n</ul>\n\n<h2>Recomendação</h2>\n\n<p>Com base na análise consolidada dos dados financeiros e de sentimento de mercado, <strong>recomenda-se manter</strong> a posição atual, monitorando de perto os desenvolvimentos estratégicos da empresa e as condições macroeconômicas do setor.</p>\n\n<p><em>Este conteúdo foi gerado automaticamente com auxílio de inteligência artificial e requer revisão humana antes da publicação. As informações apresentadas não constituem recomendação de investimento. Consulte sempre um analista financeiro certificado antes de tomar decisões de investimento.</em></p>",
+      "status": "pendente_revisao",
+      "recomendacao": "Recomenda-se manter a posição atual, monitorando de perto os desenvolvimentos estratégicos da empresa e as condições macroeconômicas do setor.",
+      "metadata": {
+        "generated_at": "2025-12-03T10:35:00.000000Z",
+        "agent": "key",
+        "agent_version": "1.0",
+        "flow": "julia->pedro->key",
+        "format": "html",
+        "financial_data_collected_at": "2025-12-03T10:00:00.000000Z",
+        "sentiment_analyzed_at": "2025-12-03T10:30:00.000000Z"
+      },
+      "financial_data_id": 89,
+      "sentiment_analysis_id": 42,
+      "stock_symbol_id": 5,
+      "created_at": "2025-12-03T10:35:00.000000Z"
+    },
+    "records_created": 1,
+    "symbols_processed": ["PETR4"]
+  }
+}
+```
+
+**Nota**: O Agente Key coleta e consolida os dados dos Agentes Júlia (dados financeiros) e Pedro (análise de sentimento) para gerar uma matéria jornalística profissional em formato HTML, pronta para revisão humana.
 
 #### POST `/api/agents/publish-notify`
 Executa Agente PublishNotify
@@ -960,10 +1134,7 @@ residencia_2025_02_API_COM_LARAVEL/
 ├── docker-compose.yaml           # Configuração Docker Compose
 ├── Dockerfile                    # Dockerfile da aplicação
 ├── README.MD                     # Este arquivo
-├── ARQUITETURA.md                # Documentação de arquitetura
-├── DIAGRAMAS.md                  # Diagramas do sistema
-├── INICIALIZACAO_COMPLETA.md     # Guia de inicialização
-└── inicializar.bat / .sh         # Scripts de inicialização
+
 ```
 
 ---

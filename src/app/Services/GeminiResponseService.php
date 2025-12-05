@@ -71,6 +71,12 @@ class GeminiResponseService
                     'maxOutputTokens' => $maxTokens,
                 ],
             ];
+            
+            // Nota: Para habilitar busca na web (Google Search) no Gemini, é necessário:
+            // 1. Usar modelo Gemini 1.5 Pro ou superior
+            // 2. Habilitar Google Search Extension na API
+            // 3. Configurar groundingConfig com googleSearchRetrieval
+            // Por enquanto, as instruções de busca na web estão no prompt
 
             // Adiciona formato de resposta JSON se solicitado
             if ($responseFormat === 'json') {
@@ -207,7 +213,7 @@ class GeminiResponseService
                 'temperature' => 0.6, // Reduzido para mais objetividade, mas mantém criatividade
                 'max_tokens' => 3072, // Aumentado para permitir análises mais aprofundadas
                 'response_format' => 'text',
-                'system_instruction' => 'Você é um jornalista financeiro veterano com mais de 15 anos de experiência. Sua missão é transformar dados técnicos em redação jornalística clara, objetiva, aprofundada e profissional. Você explica o significado dos dados, cria narrativas coesas e ajuda o leitor a entender o contexto completo da situação.',
+                'system_instruction' => 'Você é um jornalista financeiro veterano com mais de 15 anos de experiência. Sua missão é transformar dados técnicos em redação jornalística clara, objetiva, aprofundada e profissional. Você explica o significado dos dados, cria narrativas coesas e ajuda o leitor a entender o contexto completo da situação. Você tem acesso à busca na web para complementar informações quando necessário. Use essa funcionalidade para buscar dados atualizados sobre empresas, mercado financeiro e contexto relevante. Sempre integre informações encontradas de forma natural na narrativa jornalística.',
             ];
 
             $options = array_merge($defaultOptions, $options);
@@ -386,6 +392,14 @@ class GeminiResponseService
         
         $prompt .= "CONTEXTO:\n";
         $prompt .= "Você está escrevendo uma matéria sobre a ação {$symbol} ({$companyName}) para um portal financeiro de credibilidade. A matéria será revisada por editores humanos antes da publicação e deve estar pronta para publicação após revisão.\n\n";
+        
+        $prompt .= "BUSCA DE INFORMAÇÕES ADICIONAIS:\n";
+        $prompt .= "Você tem acesso à busca na web (Google Search) através do Gemini. Use essa funcionalidade para:\n";
+        $prompt .= "- Buscar informações atualizadas sobre a empresa que não estão nos dados fornecidos\n";
+        $prompt .= "- Verificar contexto de mercado e tendências recentes\n";
+        $prompt .= "- Complementar dados financeiros com informações de fontes confiáveis\n";
+        $prompt .= "- Enriquecer a análise com dados históricos e comparativos\n";
+        $prompt .= "IMPORTANTE: Sempre integre informações encontradas na web de forma natural na narrativa, citando fontes quando apropriado. Use os dados dos agentes como base principal e informações da web como complemento.\n\n";
         
         $prompt .= "DADOS FINANCEIROS:\n";
         $prompt .= "- Preço atual: R$ " . ($financialData['price'] ?? 'N/A') . "\n";
@@ -607,7 +621,24 @@ class GeminiResponseService
         $prompt .= "  \"title\": \"Título da matéria\",\n";
         $prompt .= "  \"content\": \"Conteúdo completo em HTML formatado (sem o disclaimer, que será adicionado automaticamente)\"\n";
         $prompt .= "}\n\n";
-        $prompt .= "Não inclua texto adicional antes ou depois do JSON.";
+        
+        $prompt .= "EXEMPLO DE RESPOSTA ESPERADA (Response JSON):\n";
+        $prompt .= "Siga este formato exato para a resposta:\n";
+        $prompt .= "```json\n";
+        $prompt .= "{\n";
+        $prompt .= "  \"title\": \"PETR4: Análise Aponta Sentimento Positivo do Mercado com Foco em Expansão e Sustentabilidade\",\n";
+        $prompt .= "  \"content\": \"<h1>PETR4: Análise Aponta Sentimento Positivo do Mercado com Foco em Expansão e Sustentabilidade</h1>\\n\\n<p><strong>Por Agente Key - Redatora Veterana</strong><br>\\n<em>Publicado em: 03 de dezembro de 2025</em></p>\\n\\n<h2>Resumo Executivo</h2>\\n\\n<p>A <strong>Petrobras (PETR4)</strong> apresenta um cenário de <strong>sentimento positivo</strong> no mercado, com score de <strong>0.65</strong>, baseado na análise de <strong>15 notícias</strong> coletadas nas últimas 24 horas. A empresa demonstra forte crescimento em produção e investimentos estratégicos em energia renovável, gerando expectativas otimistas entre investidores.</p>\\n\\n<h2>Dados Financeiros</h2>\\n\\n<p>Com base nos dados coletados pelo <strong>Agente Júlia</strong>...</p>\\n\\n<h2>Análise de Sentimento do Mercado</h2>\\n\\n<p>O <strong>Agente Pedro</strong> identificou um sentimento predominantemente <strong>positivo</strong>...</p>\"\n";
+        $prompt .= "}\n";
+        $prompt .= "```\n\n";
+        $prompt .= "NOTA: O campo 'content' deve conter HTML formatado completo, incluindo todas as seções da matéria. Use os dados fornecidos pelos agentes e complemente com informações da web quando necessário para enriquecer o contexto.\n\n";
+        
+        $prompt .= "INSTRUÇÕES IMPORTANTES:\n";
+        $prompt .= "1. Use os dados fornecidos pelos Agentes Júlia e Pedro como base principal\n";
+        $prompt .= "2. Se necessário, busque informações adicionais na web sobre a empresa para enriquecer o contexto\n";
+        $prompt .= "3. Integre informações encontradas na web de forma natural na narrativa jornalística\n";
+        $prompt .= "4. Sempre cite fontes quando usar informações externas\n";
+        $prompt .= "5. Mantenha foco nos dados fornecidos pelos agentes, usando informações da web apenas para contexto\n";
+        $prompt .= "6. Não inclua texto adicional antes ou depois do JSON\n";
         
         return $prompt;
     }
@@ -615,20 +646,46 @@ class GeminiResponseService
     /**
      * Parse da resposta de artigo gerado
      * 
-     * @param string $content Conteúdo gerado
+     * @param string|array $content Conteúdo gerado (pode ser string ou array se já parseado)
      * @param string $symbol Símbolo da ação
      * @return array Artigo parseado
      */
-    protected function parseArticleResponse(string $content, string $symbol): array
+    protected function parseArticleResponse($content, string $symbol): array
     {
-        // Primeiro, tenta extrair JSON se presente
-        if (preg_match('/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/', $content, $jsonMatches)) {
-            $jsonData = json_decode($jsonMatches[0], true);
-            if ($jsonData && isset($jsonData['title']) && isset($jsonData['content'])) {
+        // Valida se content é string (pode ser array se response_format for 'json')
+        if (!is_string($content)) {
+            // Se já é array, verifica se tem estrutura esperada
+            if (is_array($content) && isset($content['title']) && isset($content['content'])) {
                 return [
-                    'title' => trim($jsonData['title']),
-                    'content' => trim($jsonData['content']),
+                    'title' => trim((string)($content['title'] ?? '')),
+                    'content' => trim((string)($content['content'] ?? '')),
                 ];
+            }
+            // Se não é string nem array válido, converte para string
+            $content = is_array($content) ? json_encode($content, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : (string)$content;
+        }
+        
+        // Garante que $content é string para operações subsequentes
+        $content = (string)$content;
+        
+        // Primeiro, tenta extrair JSON se presente (melhorado para capturar JSON completo)
+        // Procura por JSON que contenha "title" e "content"
+        if (preg_match('/\{[\s\S]*"title"[\s\S]*"content"[\s\S]*\}/', $content, $jsonMatches)) {
+            $jsonStr = $jsonMatches[0];
+            
+            // Valida se JSON está completo (contagem básica de chaves)
+            $openBraces = substr_count($jsonStr, '{');
+            $closeBraces = substr_count($jsonStr, '}');
+            
+            // Se contagem de chaves está balanceada, tenta decodificar
+            if ($openBraces === $closeBraces || abs($openBraces - $closeBraces) <= 1) {
+                $jsonData = json_decode($jsonStr, true);
+                if ($jsonData && isset($jsonData['title']) && isset($jsonData['content'])) {
+                    return [
+                        'title' => trim($jsonData['title']),
+                        'content' => trim($jsonData['content']),
+                    ];
+                }
             }
         }
         
