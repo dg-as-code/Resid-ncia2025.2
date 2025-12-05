@@ -68,47 +68,47 @@ Produzir **matérias financeiras claras, confiáveis e baseadas em dados**, comb
 │                    LARAVEL APPLICATION (PHP)                     │
 │  ┌───────────────────────────────────────────────────────────┐   │
 │  │  API Layer (Controllers)                                  │   │
-│  │  - OrchestrationController (Fluxo completo)              │   │
-│  │  - AgentController (Execução individual)                 │   │
-│  │  - ArticleController (Gerenciamento de artigos)          │   │
+│  │  - OrchestrationController (Fluxo completo)               │   │
+│  │  - AgentController (Execução individual)                  │   │
+│  │  - ArticleController (Gerenciamento de artigos)           │   │
 │  │  - FinancialDataController                                │   │
-│  │  - SentimentAnalysisController                           │   │
+│  │  - SentimentAnalysisController                            │   │
 │  │  - StockSymbolController                                  │   │
 │  └──────────────────────────┬────────────────────────────────┘   │
 │                             │                                    │
 │  ┌──────────────────────────▼────────────────────────────────┐   │
 │  │  Business Logic Layer                                     │   │
-│  │  - Commands (Agentes Artisan)                            │   │
-│  │  - Jobs (Processamento assíncrono)                       │   │
-│  │  - Services (Integração com APIs)                        │   │
+│  │  - Commands (Agentes Artisan)                             │   │
+│  │  - Jobs (Processamento assíncrono)                        │   │
+│  │  - Services (Integração com APIs)                         │   │
 │  └──────────────────────────┬────────────────────────────────┘   │
 │                             │                                    │
 │  ┌──────────────────────────▼────────────────────────────────┐   │
-│  │  Data Access Layer (Eloquent ORM)                          │   │
-│  │  - Models                                                  │   │
-│  │  - Migrations                                              │   │
-│  │  - Factories & Seeders                                     │   │
+│  │  Data Access Layer (Eloquent ORM)                         │   │
+│  │  - Models                                                 │   │
+│  │  - Migrations                                             │   │
+│  │  - Factories & Seeders                                    │   │
 │  └──────────────────────────┬────────────────────────────────┘   │
 └─────────────────────────────┼────────────────────────────────────┘
                               │
                               │ Eloquent ORM
                               │
 ┌─────────────────────────────▼────────────────────────────────────┐
-│                      MYSQL DATABASE                               │
-│  - stock_symbols (Ações monitoradas)                               │
-│  - financial_data (Dados coletados por Júlia)                     │
-│  - sentiment_analysis (Análises do Pedro)                         │
-│  - articles (Matérias geradas por Key)                            │
-│  - analyses (Análises completas via Jobs)                         │
-│  - users (Revisores)                                              │
+│                      MYSQL DATABASE                              │
+│  - stock_symbols (Ações monitoradas)                             │
+│  - financial_data (Dados coletados por Júlia)                    │
+│  - sentiment_analysis (Análises do Pedro)                        │
+│  - articles (Matérias geradas por Key)                           │
+│  - analyses (Análises completas via Jobs)                        │
+│  - users (Revisores)                                             │
 └──────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                    EXTERNAL SERVICES                            │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │  Google Gemini API (Agente Júlia e Key)                  │   │
-│  │  - Dados financeiros                                      │   │
-│  │  - Geração de artigos                                      │   │
+│  │  - Dados financeiros                                     │   │
+│  │  - Geração de artigos                                    │   │
 │  └──────────────────────────────────────────────────────────┘   │
 │  ┌──────────────────────────────────────────────────────────┐   │
 │  │  News API (Agente Pedro)                                 │   │
