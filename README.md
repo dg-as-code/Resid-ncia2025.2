@@ -1384,17 +1384,3 @@ docker exec -it laravel_app php artisan test --filter AgentJuliaTest
 Este projeto é parte de um projeto acadêmico de mentoria.
 
 ---
-
-## 📞 Suporte
-
-Para dúvidas ou problemas:
-1. Verifique a documentação adicional
-2. Consulte os logs: `src/storage/logs/laravel.log`
-3. Verifique os logs do Docker: `docker-compose logs`
-
----
-
-**Desenvolvido com ❤️ para análise financeira automatizada**
-
-**Versão**: 1.0  
-**Última Atualização**: Dezembro 2025
